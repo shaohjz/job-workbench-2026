@@ -37,7 +37,18 @@ function save() {
 }
 
 const isApplied = j => j.applicationStatus === '已投递';
-const status = j => isApplied(j) ? '已投递（成功回执）' : (state.progress[j.id] || '未投递');
+const status = j => {
+  const personal = state.progress[j.id];
+  if (['面试中', '不合适'].includes(personal)) return personal;
+  return isApplied(j) ? '已投递（成功回执）' : (personal || '未投递');
+};
+function progressOptions(j) {
+  const options = isApplied(j)
+    ? [['未投递', '已投递（成功回执）'], ['面试中', '面试中'], ['不合适', '不合适']]
+    : ['未投递', '本人已在猎聘投递', '面试中', '不合适'].map(v => [v, v]);
+  const value = ['面试中', '不合适'].includes(state.progress[j.id]) ? state.progress[j.id] : (isApplied(j) ? '未投递' : (state.progress[j.id] || '未投递'));
+  return options.map(([v, label]) => `<option value="${esc(v)}" ${v === value ? 'selected' : ''}>${esc(label)}</option>`).join('');
+}
 const isDirect = j => j.source === '实名企业直招';
 
 function pending(j) {
@@ -157,7 +168,13 @@ function render() {
     ['成功投递回执', DATA.jobs.filter(isApplied).length]
   ];
   $('#stats').innerHTML = counts.map(([s, n]) => `<div class="stat"><b>${n}</b><span>${s}</span></div>`).join('');
-  $('#receipt-count').textContent = DATA.jobs.filter(isApplied).length;
+  const applied = DATA.jobs.filter(isApplied);
+  $('#receipt-count').textContent = applied.length;
+  $('#application-summary').hidden = !applied.length;
+  const dates = [...new Set(applied.map(j => j.applicationDate).filter(Boolean))].sort();
+  $('#application-headline').textContent = `已成功投递 ${applied.length} 个岗位`;
+  $('#application-detail').textContent = `${dates.length ? '最近投递：' + dates[dates.length - 1] + ' · ' : ''}已从待考虑中移出，可在“已投递”查看公司、岗位与提交日期。`;
+  document.querySelector('[data-view="applied"]').textContent = `已投递（${applied.length}）`;
   $('#selection').hidden = !picked.length;
   $('#selected-count').textContent = `已勾选 ${picked.length} 个岗位`;
 
@@ -185,6 +202,7 @@ function render() {
       <span class="tag ${j.housing ? 'housing-tag' : ''}">${esc(j.housingLabel)}</span>
       <span class="tag">${esc(j.source)}</span>
       <span class="tag">${esc(status(j))}</span>
+      ${isApplied(j) ? `<span class="tag high">投递日期 ${esc(j.applicationDate || (j.appliedAt || '').slice(0, 10))}</span>` : ''}
     </div>
     <p class="reason">${esc(j.fitReason)}</p>
     <div class="info">
@@ -203,8 +221,8 @@ function render() {
       <a href="${esc(j.url)}" target="_blank" rel="noopener noreferrer">打开猎聘原网页核实 ↗</a>
       <button type="button" data-action="skip">${state.decisions[j.id] ? '恢复待考虑' : '跳过此岗'}</button>
       <label>个人进度
-        <select aria-label="${esc(j.company)} 个人进度" data-action="progress" ${isApplied(j) ? 'disabled' : ''}>
-          ${['未投递', '本人已在猎聘投递', '面试中', '不合适'].map(v => `<option ${status(j) === v ? 'selected' : ''}>${v}</option>`).join('')}
+        <select aria-label="${esc(j.company)} 个人进度" data-action="progress">
+          ${progressOptions(j)}
         </select>
       </label>
     </div>
@@ -291,6 +309,12 @@ $('#reset').onclick = () => {
   for (const id of ['zero', 'strict', 'housing', 'direct']) $('#' + id).checked = false;
   renderLimit = PAGE_STEP;
   render();
+};
+
+$('#show-applied').onclick = () => {
+  $('#reset').click();
+  document.querySelector('[data-view="applied"]').click();
+  $('#workspace').scrollIntoView({block: 'start'});
 };
 
 $('#clear').onclick = () => {

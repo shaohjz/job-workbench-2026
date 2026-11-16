@@ -374,3 +374,10 @@ footer {
   .job-actions { gap: 8px; }
   .job-actions a { width: 100%; }
 }
+
+.application-summary { display:flex; gap:20px; justify-content:space-between; align-items:center; margin:0 0 20px; padding:20px; border:1px solid #bcd6c7; border-radius:10px; background:#edf7f0; color:#22543b; }
+.application-summary strong { font-size:20px; }
+.application-summary p { margin:6px 0 0; font-size:13px; }
+.application-summary button { flex-shrink:0; border-color:#bcd6c7; }
+.application-summary[hidden] { display:none; }
+@media(max-width:650px) { .application-summary { align-items:flex-start; flex-direction:column; gap:12px; } }
