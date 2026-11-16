@@ -41,7 +41,7 @@ const status = j => isApplied(j) ? '已投递（成功回执）' : (state.progre
 const isDirect = j => j.source === '实名企业直招';
 
 function pending(j) {
-  return !state.decisions[j.id] && !isApplied(j) && !['本人已在猎聘投递', '面试中', '不合适'].includes(status(j));
+  return j.action !== '暂缓' && !state.decisions[j.id] && !isApplied(j) && !['本人已在猎聘投递', '面试中', '不合适'].includes(status(j));
 }
 
 (function initSelects() {
@@ -93,6 +93,7 @@ function matchesBaseFilters(j, ignoreDirection = false) {
   switch (view) {
     case 'pending': return pending(j);
     case 'priority': return pending(j) && j.action === '优先了解';
+    case 'pause': return j.action === '暂缓' && !state.decisions[j.id];
     case 'verify': return pending(j) && j.action === '先核条件';
     case 'picked': return state.picked.includes(String(j.id));
     case 'applied': return isApplied(j) || status(j) === '本人已在猎聘投递';
@@ -134,9 +135,9 @@ function renderDirCards() {
       </div>
       <div class="dir-card-sub">${esc(d.salary)}</div>
       <div class="dir-card-pills">
-        ${highCnt ? `<span class="mini-pill good">优选切入 ${highCnt}</span>` : ''}
+        ${highCnt ? `<span class="mini-pill good">高匹配 ${highCnt}</span>` : ''}
         ${zeroCnt ? `<span class="mini-pill warm">经验不限/1年下 ${zeroCnt}</span>` : ''}
-        ${houseCnt ? `<span class="mini-pill">含食宿 ${houseCnt}</span>` : ''}
+        ${houseCnt ? `<span class="mini-pill">住宿／补贴线索 ${houseCnt}</span>` : ''}
       </div>
     </button>`;
   }).join('');
@@ -148,9 +149,9 @@ function render() {
 
   const pendList = DATA.jobs.filter(pending);
   const counts = [
-    ['高成长待选岗', pendList.length],
+    ['待核候选岗位', pendList.length],
     ['深圳／东莞主阵地', pendList.filter(j => j.cityGroup === '深圳' || j.cityGroup === '东莞').length],
-    ['零基础优选切入', pendList.filter(j => j.fit === '高').length],
+    ['核心条件已核实（高）', pendList.filter(j => j.fit === '高').length],
     ['经验不限／1年下', pendList.filter(j => j.zeroFriendly).length],
     ['已勾选待投', picked.length],
     ['成功投递回执', DATA.jobs.filter(isApplied).length]
@@ -178,7 +179,7 @@ function render() {
       <strong class="salary">${esc(j.salary)}</strong>
     </div>
     <div class="tags">
-      <span class="tag ${j.fit === '高' ? 'high' : 'mid'}">${j.fit === '高' ? '零基础优选切入' : '进阶冲刺可试'}</span>
+      <span class="tag ${j.fit === '高' ? 'high' : j.fit === '低' ? 'low' : 'mid'}">${esc(j.fit)}匹配 · ${esc(j.action)}</span>
       <span class="tag">${esc(j.direction)}</span>
       ${j.strict ? '<span class="tag high">正文明确接受无经验</span>' : ''}
       <span class="tag ${j.housing ? 'housing-tag' : ''}">${esc(j.housingLabel)}</span>
@@ -207,7 +208,7 @@ function render() {
         </select>
       </label>
     </div>
-  </article>`).join('') : '<div class="empty">当前筛选条件下没有岗位。可点击“重置筛选”查看全部高成长候选。</div>';
+  </article>`).join('') : '<div class="empty">当前筛选条件下没有岗位。可点击“重置筛选”查看全部候选记录。</div>';
 
   const remaining = allMatching.length - shown.length;
   $('#pager').hidden = remaining <= 0;
@@ -316,13 +317,13 @@ $('#copy-list').onclick = () => {
   const pickedJobs = DATA.jobs.filter(j => state.picked.includes(String(j.id)) && pending(j));
   if (!pickedJobs.length) return;
   handoff(
-    '这是我选定的高成长意向岗位清单（共 ' + pickedJobs.length + ' 个）。请先使用哥哥本人独立猎聘连接回读核对身份（严禁使用家人账号），确认在线简历已切换为《供应链方向》后，帮我申请以下清单内岗位；只有明确收到投递成功回执才记录为已投递：\n\n' +
+    '这是我选定的意向岗位清单（共 ' + pickedJobs.length + ' 个）。请先使用哥哥本人独立猎聘连接回读核对身份（严禁使用家人账号），先核实下列投前待核条件，未核清不要申请。条件确认且在线简历属实可用后，仅申请以下清单内岗位；只有明确收到投递成功回执才记录为已投递：\n\n' +
     pickedJobs.map((j, idx) => `${idx + 1}. 【${j.direction}】${j.company} | ${j.title} | ${j.city} | ${j.salary}\n${j.url}\njobId=${j.id}, jobKind=${j.jobKind}\n投前待核：${j.questions}`).join('\n\n')
   );
 };
 
 $('#copy-resume').onclick = () => handoff(
-  '请使用哥哥本人独立猎聘连接回读在线简历核对本人身份（不要使用家人账号），按本人确认的事实将在线求职期望与经历重点切换为第一阶段《供应链方向（物料计划/PMC助理/采购助理）》，突出Excel数据处理、进销存盘点核对、订单异常跨部门跟催、统招工科本科与CET-6，完成后回读确认。'
+  '请使用哥哥本人独立猎聘连接回读在线简历核对本人身份（不要使用家人账号），按最新PDF核对四段经历、教育与证书。Excel函数、进销存、ERP、采购及海外单证尚未确认，不写为熟练或已有成果。在线简历保持真实通用经历，期望城市薪资由本人确认再改；附件按岗位从私有定向版本中选择，由本人上传或发送。完成后回读确认。'
 );
 
 $('#resume-open').onclick = () => {
@@ -368,10 +369,10 @@ $('#cities').innerHTML = (DATA.cities || []).map(c => `<article class="city-card
 $('#directions').innerHTML = DATA.directions.map(d => `<article class="dir-detail-card">
   <small>${esc(d.phase || d.status)} · 当前 ${d.count || 0} 岗</small>
   <h3>${esc(d.title)}</h3>
-  <p><b>薪资成长曲线：</b>${esc(d.salary)}</p>
+  <p><b>薪资口径：</b>${esc(d.salary)}</p>
   <p><b>重点城市：</b>${esc(d.city)}</p>
   <p><b>核心工作：</b>${esc(d.what)}</p>
-  <p><b>入行与跃迁逻辑：</b>${esc(d.condition)}</p>
+  <p><b>入门条件：</b>${esc(d.condition)}</p>
 </article>`).join('');
 
 render();
