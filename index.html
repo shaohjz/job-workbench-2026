@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>求职工作台 · 6大高成长赛道与供应链精选岗位</title>
+  <link rel="stylesheet" href="board.css">
+</head>
+<body>
+  <header>
+    <div>
+      <span class="brand">求职工作台</span>
+      <span class="subtitle">聚焦越干越值钱的复利赛道 · 物料计划PMC · 采购执行 · 汽车/硬件供应链 · 跨境单证关务 · 外贸交付 · 工程招投标</span>
+    </div>
+    <span class="date">高成长精选 · 2026.11.16</span>
+  </header>
+
+  <main>
+    <section class="intro">
+      <div>
+        <h1>先锚定能深耕涨薪的赛道，分批聚焦投递。</h1>
+        <p>已彻底剔除 AI 数据标注、内容审核、客服/质检及低薪打杂岗；严选保留 6 大长期涨薪赛道、217 条逐页核验正文岗位。</p>
+      </div>
+      <div class="intro-actions">
+        <button id="resume-open" type="button">分批投递策略与简历准备</button>
+      </div>
+    </section>
+
+    <section class="strategy-banner" id="strategy-banner"></section>
+
+    <section class="resume-panel" id="resume-panel" hidden>
+      <div class="resume-heading">
+        <h2>分阶段简历与投递准备</h2>
+        <span id="account-status">正在读取已核对状态</span>
+      </div>
+      <div class="check-grid">
+        <article>
+          <b>01 在线简历（单一主方向原则）</b>
+          <p id="resume-status"></p>
+          <button id="copy-resume" type="button">复制供应链简历更新指令</button>
+        </article>
+        <article>
+          <b>02 简历附件同步</b>
+          <p id="attachment-status"></p>
+          <a href="https://www.liepin.com/" target="_blank" rel="noopener">打开猎聘上传／查看 ↗</a>
+        </article>
+        <article>
+          <b>03 选岗与代投流程</b>
+          <p>勾选想试的岗位 → 点击“复制投递清单发给家人” → 核实账号与简历方向后批量投递 → 收到成功回执后更新状态。</p>
+          <small>本页不直接提交应聘；勾选与跳过记录保存在当前设备浏览器。</small>
+        </article>
+      </div>
+      <details open>
+        <summary>为什么只保留这 6 个方向？成长路径怎么看？</summary>
+        <p><b>核心筛选逻辑：</b>宁可前 1 年以 5–8k 从助理/基础专员入行学 ERP、BOM、采购寻源或关务单证，也不做 3 年后仍在原地的客服、审核或标注。<b>高匹配（优选切入口）：</b>实名企业直招、经验要求为“经验不限／1年以下”且薪资上限 ≥6k 的高成长岗位。<b>中匹配（进阶冲刺／目标参照）：</b>标 1–3 年但职责以跟单、ERP 录单、物料齐套为主，改好供应链版简历并练熟 Excel 后可冲刺试投。</p>
+      </details>
+    </section>
+
+    <section id="stats" class="stats" aria-label="岗位统计"></section>
+
+    <section class="dir-nav-section">
+      <div class="section-head">
+        <div>
+          <h2>按 6 大高成长赛道浏览</h2>
+          <span class="hint">点击任意赛道卡片筛选下方岗位，再次点击取消筛选</span>
+        </div>
+        <button id="clear-dir" type="button" hidden>查看全部 6 大赛道</button>
+      </div>
+      <div id="dir-cards" class="dir-cards"></div>
+    </section>
+
+    <section class="workspace" id="workspace">
+      <div class="search-row">
+        <input id="search" aria-label="搜索公司、岗位、城市、工作内容" type="search" placeholder="搜索公司、岗位、城市、关键词（如：深圳、PMC、物料、采购、包住、双休、比亚迪）">
+        <select id="city" aria-label="城市"><option value="">全部城市</option></select>
+        <select id="direction" aria-label="赛道"><option value="">全部赛道</option></select>
+        <select id="fit" aria-label="匹配度">
+          <option value="">全部梯度</option>
+          <option value="高">零基础优选切入（高）</option>
+          <option value="中">进阶冲刺可试（中）</option>
+        </select>
+        <select id="sort" aria-label="排序方式">
+          <option value="default">推荐切入优先级</option>
+          <option value="salary">薪资上限从高到低</option>
+          <option value="zero">经验不限／1年以下优先</option>
+          <option value="housing">包吃住／房补优先</option>
+        </select>
+      </div>
+
+      <div class="tabs" id="tabs">
+        <button data-view="pending" class="active" type="button">待考虑</button>
+        <button data-view="priority" type="button">优先了解</button>
+        <button data-view="verify" type="button">进阶冲刺／先核条件</button>
+        <button data-view="picked" type="button">已勾选</button>
+        <button data-view="applied" type="button">已投递</button>
+        <button data-view="interview" type="button">面试中</button>
+        <button data-view="skip" type="button">已跳过</button>
+        <button data-view="all" type="button">全部岗位</button>
+      </div>
+
+      <div class="more-filters">
+        <label><input id="zero" type="checkbox"> 经验不限／1年以下</label>
+        <label><input id="strict" type="checkbox"> 正文明确写接受零基础</label>
+        <label><input id="housing" type="checkbox"> 含住宿／房补福利</label>
+        <label><input id="direct" type="checkbox"> 仅看实名企业直招</label>
+        <button id="reset" type="button">重置筛选</button>
+        <details>
+          <summary>导出／导入本机勾选记录</summary>
+          <p>勾选、跳过和个人进度保存在当前浏览器；换手机或清理缓存前可导出备份。</p>
+          <button id="export" type="button">导出选择记录</button>
+          <label class="import">导入选择记录 <input id="import" type="file" accept="application/json"></label>
+        </details>
+      </div>
+
+      <div class="selection" id="selection" hidden>
+        <b id="selected-count"></b>
+        <button class="primary" id="copy-list" type="button">复制投递清单发给家人</button>
+        <button id="clear" type="button">取消全部勾选</button>
+      </div>
+
+      <div id="handoff" hidden>
+        <label>复制以下内容微信发送给家人：<textarea id="handoff-text" rows="8" readonly></textarea></label>
+      </div>
+
+      <p id="notice" role="status" aria-live="polite"></p>
+
+      <div class="list-header">
+        <span id="count"></span>
+        <span>每张卡片均附 1→3→5 年涨薪路径 · 展开可看完整 JD 原文</span>
+      </div>
+
+      <div id="jobs"></div>
+      <div id="pager" class="pager" hidden>
+        <button id="load-more" class="primary" type="button">加载更多岗位</button>
+        <button id="load-all" type="button">展开当前全部</button>
+      </div>
+    </section>
+
+    <section class="city-summary">
+      <h2>重点城市怎么选（成长空间 vs 生活成本）</h2>
+      <div id="cities" class="city-grid"></div>
+    </section>
+
+    <section class="direction-summary">
+      <div class="section-head">
+        <h2>6 大高成长赛道 1→3→5 年晋升与涨薪路线</h2>
+        <a href="direction-tree.png" download>保存6大高成长赛道全景图 ↗</a>
+      </div>
+      <div id="directions" class="dir-detail-grid"></div>
+      <p class="method-note" id="method-note"></p>
+    </section>
+
+    <footer>
+      <p>公开招聘数据核对日期：2026-11-16。已过滤低成长岗位与超低薪打杂岗；招聘薪资为公开区间口径，固定底薪、绩效与食宿细项以 HR 确认为准。</p>
+      <p>隐私保护：本站点仅展示公开职位与赛道分析，不包含任何个人姓名、电话、邮箱、微信号、简历文件或账号凭据。正式成功投递回执数：<strong id="receipt-count">0</strong>。</p>
+    </footer>
+  </main>
+
+  <script src="data.js"></script>
+  <script src="board.js"></script>
+</body>
+</html>
